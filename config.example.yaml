@@ -1,0 +1,59 @@
+# vTTS Configuration
+# Copy this file to config.yaml and adjust to your setup.
+
+model:
+  # HuggingFace model ID (downloaded automatically on first run)
+  # Options:
+  #   - Qwen/Qwen3-TTS-12Hz-0.6B-Base          (voice cloning, 1.2GB VRAM)
+  #   - Qwen/Qwen3-TTS-12Hz-1.7B-Base          (voice cloning, 3.4GB VRAM)
+  #   - Qwen/Qwen3-TTS-12Hz-0.6B-CustomVoice   (built-in speakers, 1.2GB VRAM)
+  #   - Qwen/Qwen3-TTS-12Hz-1.7B-CustomVoice   (built-in speakers, 3.4GB VRAM)
+  name: "Qwen/Qwen3-TTS-12Hz-1.7B-CustomVoice"
+
+  # GPU device
+  device: "cuda:0"
+
+  # Model precision (bfloat16 recommended for Ampere+ GPUs)
+  dtype: "bfloat16"
+
+  # Optional: local path if you already have the model downloaded.
+  # If set, vTTS uses this path instead of downloading from HuggingFace.
+  # local_path: "/path/to/your/local/model"
+
+worker:
+  # Maximum concurrent audio generations
+  max_slots: 16
+
+  # Frames between audio chunk emissions.
+  # Lower = lower latency (faster first byte), more vocoder overhead.
+  #   3 = ~250ms chunks, ~200ms TTFB (best for voice agents)
+  #   6 = ~500ms chunks, ~400ms TTFB (good balance)
+  #  20 = ~1.7s chunks, ~1.4s TTFB (best for batch dubbing)
+  emit_every_frames: 6
+
+  # Vocoder context window (more = better quality, more compute)
+  decode_window_frames: 80
+
+  # Crossfade overlap between chunks (samples at 24kHz)
+  overlap_samples: 1024
+
+  # Maximum generation length in frames (12 frames = 1 second of audio)
+  # Safety limit to prevent infinite generation.
+  max_frames: 3600  # 5 minutes
+
+server:
+  host: "0.0.0.0"
+  port: 8080
+
+# Voice cloning configuration (only for Base models).
+# Each voice needs:
+#   - ref_audio: path to a WAV file (~5-10 seconds of clean speech)
+#   - ref_text: exact transcript of what is said in the audio
+#
+# voices:
+#   my_voice:
+#     ref_audio: "./voices/my_voice.wav"
+#     ref_text: "The exact words spoken in the reference audio."
+#   another_voice:
+#     ref_audio: "./voices/another.wav"
+#     ref_text: "Another reference transcript."
